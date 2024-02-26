@@ -17,30 +17,27 @@ const App = () => {
   const [isDefaultPage, setIsDefaultPage] = useState(true);
 
   useEffect(() => {
-    if (searchQuery && isDefaultPage) {
-      setIsDefaultPage(false);
-    }
+    const fetchImages = async () => {
+      setIsLoading(true);
+      try {
+        const newImages = await fetchImagesWithQuery(searchQuery, page);
+        if (page === 1) {
+          setImages(newImages);
+          setIsDefaultPage(false);
+        } else {
+          setImages(prevImages => [...prevImages, ...newImages]);
+        }
+      } catch (error) {
+        console.error('Error fetching images:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     if (searchQuery) {
       fetchImages();
     }
-  }, [searchQuery, isDefaultPage]);
-
-  const fetchImages = async () => {
-    setIsLoading(true);
-    try {
-      const newImages = await fetchImagesWithQuery(searchQuery, page);
-      if (page === 1) {
-        setImages(newImages);
-      } else {
-        setImages(prevImages => [...prevImages, ...newImages]);
-      }
-      setPage(prevPage => prevPage + 1);
-    } catch (error) {
-      console.error('Error fetching images:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  }, [searchQuery, page]);
 
   const handleSetQuery = query => {
     setImages([]);
@@ -49,7 +46,7 @@ const App = () => {
   };
 
   const handleLoadMoreImages = () => {
-    fetchImages();
+    setPage(prevPage => prevPage + 1);
   };
 
   const handleOpenModal = imageURL => {
@@ -80,6 +77,12 @@ const App = () => {
 };
 
 export default App;
+
+
+
+
+
+
 
 
 
